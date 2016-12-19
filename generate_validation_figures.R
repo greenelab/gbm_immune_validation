@@ -48,6 +48,7 @@ ssgsea_subtype <- reshape2::melt(ssgsea_subtype,
                                  measure.vars = c("CD4", "CD8", "Macrophages"),
                                  value.name = "Enrichment",
                                  variable.name = "Cell Type")
+ssgsea_subtype <- ssgsea_subtype[complete.cases(ssgsea_subtype), ]
 
 # Process validation data to compare with ssGSEA results
 colnames(validation)[2:3] <- c("CD4", "CD8")
@@ -57,6 +58,32 @@ val_plot <- reshape2::melt(validation, id.vars = c("TMA_ID", "SUBTYPE"),
                            value.name = "Positivity")
 val_plot$`Cell Type` <- factor(val_plot$`Cell Type`,
                                levels = c("CD4", "CD8", "Macrophages"))
+
+# Pairwise t test for subtype specific across cell type comparisons
+ssgsea_subtype <- ssgsea_subtype %>%
+  mutate(ttest_comparison = paste0('TCGA', GeneExp_Subtype, `Cell Type`))
+val_plot <- val_plot %>%
+  mutate(ttest_comparison = paste0('IHC', SUBTYPE, `Cell Type`))
+
+# Write results to file
+for (cell in unique(ssgsea_subtype$`Cell Type`)) {
+  ssgsea_subset <- ssgsea_subtype[ssgsea_subtype$`Cell Type` == cell, ]
+  ssgsea_ttest_results <- pairwise.t.test(ssgsea_subset$Enrichment,
+                                   ssgsea_subset$ttest_comparison,
+                                   p.adjust.method = 'bonferroni',
+                                   paired = FALSE)
+  val_subset <- val_plot[val_plot$`Cell Type` == cell, ]
+  val_ttest_results <- pairwise.t.test(val_subset$Positivity,
+                                       val_subset$ttest_comparison,
+                                       p.adjust.method = 'bonferroni',
+                                       paired = FALSE)
+  
+  cell_type_results <- cbind(val_ttest_results$p.value,
+                             ssgsea_ttest_results$p.value)
+  write.table(cell_type_results,
+              file.path('results', paste0('ttest_results_', cell, '.tsv')),
+              sep = '\t', col.names = NA)
+}
 
 # Plot ssGSEA results
 ssGSEA_theme <-   theme(axis.text.x = element_blank(),
