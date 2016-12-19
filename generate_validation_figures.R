@@ -138,10 +138,50 @@ grid.arrange(arrangeGrob(ssgsea_grob + theme(legend.position = "none"),
 dev.off()
 
 # Also save png for viewing in github
+png_theme <- theme(axis.text.x = element_blank(),
+                   axis.text.y = element_text(size = rel(1.6)),
+                   axis.title.x = element_blank(),
+                   axis.title.y = element_text(size = rel(1.9)),
+                   axis.ticks = element_line(color = "black"),
+                   axis.ticks.x = element_blank(),
+                   axis.ticks.margin = unit(8, "mm"),
+                   legend.position = "right",
+                   plot.margin = unit(rep(0.1, 4), "cm"),
+                   legend.text = element_text(size = rel(1)),
+                   legend.key = element_blank(),
+                   legend.key.size = unit(10, "mm"),
+                   strip.text.x = element_text(size = rel(1.5)))
+
+ssgsea_png <- ggplot2::ggplot(ssgsea_subtype, aes(x = GeneExp_Subtype,
+                                                   y = Enrichment,
+                                                   fill = GeneExp_Subtype)) +
+  facet_wrap(~`Cell Type`, scales = "free") +
+  geom_jitter(aes(color = GeneExp_Subtype), width = 0.2, size = rel(1)) +
+  geom_boxplot(outlier.size = -1, lwd = 0.1) +
+  scale_fill_manual(values = subtype_colors) +
+  scale_color_manual(values = subtype_colors) +
+  ylab("ssGSEA Enrichment Score") +
+  theme_gbm() + png_theme
+
+validation_png <- ggplot2::ggplot(val_plot, aes(x = SUBTYPE,
+                                                 y = Positivity,
+                                                 fill = SUBTYPE)) +
+  facet_wrap(~`Cell Type`, scales = "free") +
+  geom_jitter(aes(color = SUBTYPE), width = 0.2, size = rel(1)) +
+  geom_boxplot(outlier.size = -1, lwd = 0.1) +
+  scale_fill_manual(values = subtype_colors) +
+  scale_color_manual(values = subtype_colors) +
+  ylab("Percent Positivity") +
+  theme_gbm() + png_theme
+
+gtable <- ggplot_gtable(ggplot_build(validation_png))
+legend_png <- which(sapply(gtable$grobs, function(x) x$name == "guide-box"))
+legend_png <- gtable$grobs[[legend_png]]
+
 png(file.path("figures", "boxplot_validation_TCGA_summary.png"), width = 750,
     height = 505)
-grid.arrange(arrangeGrob(ssgsea_grob + theme(legend.position = "none"),
-                         validation_grob + theme(legend.position = "none")), 
+grid.arrange(arrangeGrob(ssgsea_png + theme(legend.position = "none"),
+                         validation_png + theme(legend.position = "none")),
              layout_matrix = layout,
-             legend_grob, nrow = 1)
+             legend_png, nrow = 1)
 dev.off()
