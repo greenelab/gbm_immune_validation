@@ -1,0 +1,27 @@
+R version 3.2.3 (2015-12-10)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 16.04.1 LTS
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C               LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8    LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C             LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] GSVA_1.18.0           preprocessCore_1.32.0 BiocInstaller_1.20.3  car_2.1-3             survminer_0.2.2      
+ [6] survival_2.39-5       data.table_1.9.6      dplyr_0.5.0           ggplot2_2.1.0         readr_1.0.0          
+[11] optparse_1.3.2        checkpoint_0.3.18    
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_0.12.8          nloptr_1.0.4         plyr_1.8.4           tools_3.2.3          digest_0.6.10       
+ [6] lme4_1.1-12          memoise_1.0.0        RSQLite_1.1          annotate_1.48.0      tibble_1.1          
+[11] gtable_0.2.0         nlme_3.1-128         lattice_0.20-33      mgcv_1.8-13          graph_1.48.0        
+[16] Matrix_1.2-6         DBI_0.5              parallel_3.2.3       SparseM_1.7          IRanges_2.4.8       
+[21] S4Vectors_0.8.11     MatrixModels_0.4-1   stats4_3.2.3         grid_3.2.3           nnet_7.3-12         
+[26] getopt_1.20.0        GSEABase_1.32.0      Biobase_2.30.0       R6_2.1.2             AnnotationDbi_1.32.3
+[31] XML_3.98-1.5         minqa_1.2.4          magrittr_1.5         scales_0.4.0         MASS_7.3-45         
+[36] splines_3.2.3        BiocGenerics_0.16.1  assertthat_0.1       pbkrtest_0.4-6       xtable_1.8-2        
+[41] colorspace_1.2-6     quantreg_5.26        munsell_0.4.3        chron_2.3-47        

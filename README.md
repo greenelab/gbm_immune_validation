@@ -3,6 +3,11 @@
 **Gregory Way and Casey Greene**
 **University of Pennsylvania**
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.195238.svg)](https://doi.org/10.5281/zenodo.195238)
+
+[![Build Status](http://165.123.67.152/api/badges/greenelab/gbm_immune_validation/status.svg)](http://165.123.67.152/greenelab/gbm_immune_validation)
+
+
 ## Summary
 
 The amount and type of immune cell infiltration into tumors is an important
@@ -43,6 +48,22 @@ bash run_pipeline.sh
 
 For exact instructions on how to reproduce our analysis see `run_pipeline.sh`.
 
+## Results
+
+Our _in silico_ deconvolution of CD4+ cells, CD8+ cells, and Macrophages in TCGA
+data matches very closely to immunohistochemistry estimates of the same cell types
+in a separate dataset. The proportions of immune cell infiltrate across subtypes
+corresponds strongly.
+
+![immune deconvolution and IHC](figures/boxplot_validation_TCGA_summary.png?raw=true)
+
+We also observed that high macrophage infiltration was associated with worse outcomes
+in the TCGA dataset. This relationship was strengthed after adjusting for several
+covariates including age, gender, and gene expression based subtype.
+
+![TCGA macrophage survival](figures/TCGA_kaplanmeier_Macrophages.png?raw=true)  
+
+
 ## Contact
 
 For all code related questions, bug reporting, or feature requests please file a
@@ -50,7 +71,11 @@ For all code related questions, bug reporting, or feature requests please file a
 
 ## Dependencies
 
-All code was performed in R version 3.2.3 and packages were managed by the
-[checkpoint](https://cran.r-project.org/web/packages/checkpoint/index.html "Microsoft checkpoint r package")
-package set at "2016-08-16" (see `install.R` for more details)
+All analyses were performed in R version 3.2.3 and packages were versioned with the
+checkpoint package (version 0.3.18) set to a snapshot date of "2016-08-16". The checkpoint
+package will automatically download all the specified packages at the versions they
+existed in on that specific date. See [install.R](install.R) for more details.
+The versions for each package are specified in [sessionInfo.txt](sessionInfo.txt).
 
+We also provide a [Docker image](https://hub.docker.com/r/gregway/gbm_immune_validation/)
+to recreate the compute environment. See the [Dockerfile](Dockerfile) for more details.
