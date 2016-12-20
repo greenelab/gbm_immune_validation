@@ -23,15 +23,11 @@ library("data.table")
 library("survival")
 library("survminer")
 library("car")
-library("Rcpp")
 
 # Load bioconductor packages
 source("https://bioconductor.org/biocLite.R")
 biocLite("preprocessCore", suppressUpdates = TRUE)
 biocLite("GSVA", suppressUpdates = TRUE)
-
-library("preprocessCore")
-library("GSVA")
 
 sink("sessionInfo.txt")
 sessionInfo()
