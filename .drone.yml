@@ -11,7 +11,7 @@ build:
     - git checkout master
     - git add .
     - git commit -a -m "Drone Build [skip CI] [ci skip]"
-    - git push
+    - git push --set-upstream origin master
 
 branches:
   - staging
