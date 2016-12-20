@@ -9,7 +9,7 @@ build:
     - git remote set-url origin https://github.com/greenelab/gbm_immune_validation
 
     - git checkout master
-    - git add *
+    - git add .
     - git commit -a -m "Drone Build [skip CI] [ci skip]"
     - git remote set-url origin https://gwaygenomics:$$GIT_PUBLISH_KEY@github.com/greenelab/gbm_immune_validation.git
     - git push --set-upstream origin master
