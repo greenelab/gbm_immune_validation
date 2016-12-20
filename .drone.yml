@@ -4,15 +4,14 @@ build:
     - bash run_pipeline.sh
 
     - git config user.email "gregory.way@gmail.com"
-    - git config user.name "gwaygenomics"
+    - git config user.name "Greg Way"
     - git config --global push.default simple
-    - git remote set-url origin https://github.com/greenelab/gbm_immune_validation
+    - git remote set-url origin https://gwaygenomics:$$git_publish_key@github.com/greenelab/gbm_immune_validation.git
 
     - git checkout master
     - git add .
     - git commit -a -m "Drone Build [skip CI] [ci skip]"
-    - git remote set-url origin https://gwaygenomics:$$GIT_PUBLISH_KEY@github.com/greenelab/gbm_immune_validation.git
-    - git push --set-upstream origin master
+    - git push
 
 branches:
   - staging
