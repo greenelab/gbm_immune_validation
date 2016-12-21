@@ -1,0 +1,4 @@
+""	"IHCClassicalMacrophages"	"IHCMesenchymalMacrophages"	"IHCNeuralMacrophages"	"TCGAClassicalMacrophages"	"TCGAMesenchymalMacrophages"	"TCGANeuralMacrophages"
+"IHCMesenchymalMacrophages"	0.333315242975077	NA	NA	3.25595982150884e-25	NA	NA
+"IHCNeuralMacrophages"	1	0.310650103105314	NA	0.069044634150353	4.28743320749124e-11	NA
+"IHCProneuralMacrophages"	1	0.00562720095823647	0.963410816501133	0.000353273517637298	1.80001958895742e-42	1.82991440106662e-08
