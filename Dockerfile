@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
             git \
             vim \
             curl \
+            ssh \
             r-base=3.2.3-4 \
             r-base-dev=3.2.3-4 \
             r-recommended=3.2.3-4
