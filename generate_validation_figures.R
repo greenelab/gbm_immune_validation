@@ -95,9 +95,9 @@ ssGSEA_theme <-   theme(axis.text.x = element_blank(),
                         axis.ticks.margin = unit(8, "mm"),
                         legend.position = "right",
                         plot.margin = unit(rep(0.1, 4), "cm"),
-                        legend.text = element_text(size = rel(0.5)),
+                        legend.text = element_text(size = rel(0.75)),
                         legend.key = element_blank(),
-                        legend.key.size = unit(3, "mm"), 
+                        legend.key.size = unit(6, "mm"),
                         strip.text.x = element_text(size = rel(0.5)))
 
 ssgsea_grob <- ggplot2::ggplot(ssgsea_subtype, aes(x = GeneExp_Subtype,
@@ -108,7 +108,7 @@ ssgsea_grob <- ggplot2::ggplot(ssgsea_subtype, aes(x = GeneExp_Subtype,
   geom_boxplot(outlier.size = -1, lwd = 0.1) + 
   scale_fill_manual(values = subtype_colors) +
   scale_color_manual(values = subtype_colors) +
-  ylab("ssGSEA Enrichment Score") + 
+  ylab("ssGSEA Enrichment Score") +
   theme_gbm() + ssGSEA_theme
 
 validation_grob <- ggplot2::ggplot(val_plot, aes(x = SUBTYPE,
@@ -128,7 +128,7 @@ legend_grob <- which(sapply(gtable$grobs, function(x) x$name == "guide-box"))
 legend_grob <- gtable$grobs[[legend_grob]]
 
 # Save Multiple Facet Boxplot
-layout <- matrix(c(rep(1, 85), rep(2, 15)), nrow = 5, ncol = 20)
+layout <- matrix(c(rep(1, 85), rep(2, 25)), nrow = 5, ncol = 22)
 pdf(file.path("figures", "boxplot_validation_TCGA_summary.pdf"), width = 5,
     height = 3.3)
 grid.arrange(arrangeGrob(ssgsea_grob + theme(legend.position = "none"),
