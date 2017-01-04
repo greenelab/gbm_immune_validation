@@ -15,5 +15,9 @@ build:
     - git remote set-url origin https://gwaygenomics:$$GIT_PUBLISH_KEY@github.com/greenelab/gbm_immune_validation.git
     - git push --set-upstream origin master
 
+    - git checkout staging
+    - git merge --ff-only master
+    - git push --set-upstream origin staging
+
 branches:
   - staging
