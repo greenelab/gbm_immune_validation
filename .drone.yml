@@ -19,6 +19,5 @@ build:
     - git merge master
     - git push --set-upstream origin staging
 
-
 branches:
   - staging
