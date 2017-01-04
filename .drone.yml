@@ -16,7 +16,7 @@ build:
     - git push --set-upstream origin master
 
     - git checkout staging
-    - git merge master
+    - git merge --ff-only master
     - git push --set-upstream origin staging
 
 branches:
