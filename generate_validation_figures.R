@@ -209,8 +209,11 @@ for (marker in unique(ssgsea_subtype$`Cell Type`)) {
   
   t_test_results_df <- t_test_results$p.value %>%
     dplyr::as_data_frame() %>%
-    dplyr::mutate(cell_type = marker,
-                  data_type = "TCGA_ssgsea")
+    dplyr::mutate(
+      comparison = rownames(t_test_results$p.value),
+      cell_type = marker,
+      data_type = "TCGA_ssgsea"
+      )
   
   t_test_results_list[[marker]] <- t_test_results_df
 }
