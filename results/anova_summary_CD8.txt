@@ -1,0 +1,5 @@
+                 Df Sum Sq Mean Sq F value   Pr(>F)    
+GeneExp_Subtype   3  0.923 0.30764   24.64 6.28e-15 ***
+Residuals       525  6.555 0.01249                     
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1

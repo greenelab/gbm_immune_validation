@@ -69,7 +69,7 @@ PerformSurvivalAnalysis <- function(cell_type, survival_data, output = TRUE,
 
   # Adjusted model by age, gender, and subtype
   adj_model <- surv_obj ~ survival_data[[cell_type]] + 
-    survival_data$age_recode + survival_data$gender +
+    survival_data$age_at_initial_pathologic_diagnosis + survival_data$gender +
     survival_data$GeneExp_Subtype
 
   adj_model <- survival::coxph(adj_model)
@@ -90,100 +90,129 @@ PerformSurvivalAnalysis <- function(cell_type, survival_data, output = TRUE,
               "adjusted" = adj_model_summary))
 }
 
-PlotKaplanMeierCellType <- function(cell_type, survival_data,
-                                    tertiles = FALSE) {
+PlotKaplanMeierCellType <- function(cell_type, surv_data, tertiles = FALSE) {
   # Fit a survival model and plot using survminer package
   #
   # Args: 
   #   cell_type: a string indicating the cell type to analyze
-  #   survival_data: full dataframe with tumor specific information
+  #   surv_data: full dataframe with tumor specific information
   #   tertiles: boolean of splitting data into thirds (high, low, mid)
   #
   # Returns:
   #   Plots a survminer object to the screen
 
   if (tertiles) {
-    tert <- quantile(survival_data[[cell_type]], c(.33, .66))
-    cell_type_content <- rep("", nrow(survival_data))
-    cell_type_content[survival_data[[cell_type]] > tert[2]] <- "High"
-    cell_type_content[survival_data[[cell_type]] < tert[1]] <- "Low"
+    tert <- quantile(surv_data[[cell_type]], c(.33, .66))
+    cell_type_content <- rep("", nrow(surv_data))
+    cell_type_content[surv_data[[cell_type]] > tert[2]] <- "High"
+    cell_type_content[surv_data[[cell_type]] < tert[1]] <- "Low"
     cell_type_content[!(cell_type_content %in% c("Low", "High"))] <- "Mid"
     legend_labels <- c("High", "Mid", "Low")
+
   } else {
-    cell_type_content <- rep("Low", nrow(survival_data))
-    cell_type_content[survival_data[[cell_type]] > 
-                        median(survival_data[[cell_type]])] <- "High"
-    legend_labels <- c("Low", "High")
+    cell_type_content <- rep("Low", nrow(surv_data))
+    cell_type_content[surv_data[[cell_type]] > 
+                        median(surv_data[[cell_type]])] <- "High"
+    legend_labels <- c("High", "Low")
   }
 
   cell_type_content <- factor(cell_type_content, levels = legend_labels)
-  survival_data$cell_type_content <- cell_type_content
-  celltype_km <- survival::survfit(survival::Surv(as.numeric(paste(days_to_death)),
-                                                `_EVENT`) ~ cell_type_content,
-                                 data = survival_data)
+  surv_data$cell_type_content <- cell_type_content
+  celltype_km <- survival::survfit(
+    survival::Surv(as.numeric(paste(days_to_death)), `_EVENT`) ~
+      cell_type_content, data = surv_data)
   
   print(celltype_km)
   survminer::ggsurvplot(celltype_km, legend = "right",
                         legend.title = cell_type,
+                        color = legend_labels,
                         legend.labs = legend_labels,
-                        conf.int = TRUE,
+                        conf.int = FALSE,
                         main = '',
                         xlab = "Days to Death",
-                        size = 0.3)
+                        size = 0.8)
 }
 
 # Load Constants
-surv_plot_height <- 3
-surv_plot_width <- 5
+sur_plot_height <- 3
+sur_plot_width <- 5
 
 # Load and process data
 clinical_file <- file.path("data", "clinical_dataframe.tsv")
 ssgsea_file <- file.path("results", "ssGSEA_results.tsv")
+ihc_file <- file.path("data", "validation_gbm_data_version3_clean.tsv")
+
 clinical <- suppressMessages(readr::read_tsv(clinical_file))
 ssgsea <-  suppressMessages(readr::read_tsv(ssgsea_file))
+ihc <- suppressMessages(readr::read_tsv(ihc_file))
+
 colnames(ssgsea)[1] <- "sampleID"
 
 survival_data <- dplyr::full_join(clinical, ssgsea, by = "sampleID")
 gene_exp_levels <- c("Classical", "Mesenchymal", "Neural", "Proneural")
 survival_data$GeneExp_Subtype <- factor(survival_data$GeneExp_Subtype,
                                         levels = gene_exp_levels)
+ihc$SUBTYPE <- factor(ihc$SUBTYPE, levels = gene_exp_levels)
 
-# Recode age into discretized bins
-survival_data$age_recode <- 
-  car::recode(survival_data$age_at_initial_pathologic_diagnosis,
-                "0:14 = 1; 15:39 = 2; 40:44 = 3; 45:49 = 4; 50:54 = 5;
-                55:59 = 6; 60:64 = 7; 65:69 = 8; 70:74 = 9; 75:150 = 10")
+# Rename IHC columns to match references to TCGA data
+colnames(ihc) <- c("TMA_ID", "CD4", "CD8", "CD68", "CD163", "GeneExp_Subtype",
+                   "age_at_initial_pathologic_diagnosis", "days_to_death",
+                   "_EVENT", "gender")
 
 # Perform analysis and write results to file
-immune_cell_types <- c("CD4", "CD8", "Macrophages")
+immune_cell_types <- c("CD4", "CD8", "CD68", "CD163")
 cell_surv <- list()
+ihc_surv <- list()
 for (cell in immune_cell_types) {
-  cell_surv[[cell]] <- PerformSurvivalAnalysis(cell_type = cell,
+  
+  if (cell %in% c("CD68", "CD163")) {
+    tcga <- "Macrophages"
+  } else {
+    tcga <- cell
+  }
+  
+  cell_surv[[tcga]] <- PerformSurvivalAnalysis(cell_type = tcga,
                                                survival_data = survival_data,
                                                output = TRUE,
                                                data_origin = "TCGA")
+  
+  ihc_surv[[cell]] <- PerformSurvivalAnalysis(cell_type = cell,
+                                              survival_data = ihc,
+                                              output = TRUE,
+                                              data_origin = "IHC")
 
   # Plot Kaplan-Meier curves for each cell type
-  PlotKaplanMeierCellType(cell, survival_data)
-  plot_file <- file.path("figures", paste0("TCGA_kaplanmeier_", cell, ".pdf"))
-  ggplot2::ggsave(plot_file, width = surv_plot_width, height = surv_plot_height)
+  PlotKaplanMeierCellType(cell_type = tcga, surv_data = survival_data)
+  plot_file <- file.path("figures", paste0("TCGA_kaplanmeier_", tcga, ".pdf"))
+  ggplot2::ggsave(plot_file, width = sur_plot_width, height = sur_plot_height)
+  
+  PlotKaplanMeierCellType(cell_type = cell, surv_data = ihc)
+  plot_file <- file.path("figures", paste0("IHC_kaplanmeier_", cell, ".pdf"))
+  ggplot2::ggsave(plot_file, width = sur_plot_width, height = sur_plot_height)
   
   # Plot Kaplan-Meier curves for each cell type in tertiles
-  PlotKaplanMeierCellType(cell, survival_data, tertiles = TRUE)
-  plot_file <- file.path("figures", paste0("TCGA_kaplanmeier_tertiles_", cell,
+  PlotKaplanMeierCellType(cell_type = tcga, surv_data = survival_data,
+                          tertiles = TRUE)
+  plot_file <- file.path("figures", paste0("TCGA_kaplanmeier_tertiles_", tcga,
                                            ".pdf"))
-  ggplot2::ggsave(plot_file, width = surv_plot_width, height = surv_plot_height)
+  ggplot2::ggsave(plot_file, width = sur_plot_width, height = sur_plot_height)
+  
+  PlotKaplanMeierCellType(cell_type = cell, surv_data = ihc, tertiles = TRUE)
+  plot_file <- file.path("figures", paste0("IHC_kaplanmeier_tertiles_", cell,
+                                           ".pdf"))
+  ggplot2::ggsave(plot_file, width = sur_plot_width, height = sur_plot_height)
   
   # Also save png files of each figure
-  PlotKaplanMeierCellType(cell, survival_data)
-  plot_file <- file.path("figures", paste0("TCGA_kaplanmeier_", cell, ".png"))
-  ggplot2::ggsave(plot_file, width = surv_plot_width, height = surv_plot_height)
+  PlotKaplanMeierCellType(cell_type = tcga, surv_data = survival_data)
+  plot_file <- file.path("figures", paste0("TCGA_kaplanmeier_", tcga, ".png"))
+  ggplot2::ggsave(plot_file, width = sur_plot_width, height = sur_plot_height)
   
   # Plot Kaplan-Meier curves for each cell type in tertiles
-  PlotKaplanMeierCellType(cell, survival_data, tertiles = TRUE)
-  plot_file <- file.path("figures", paste0("TCGA_kaplanmeier_tertiles_", cell,
+  PlotKaplanMeierCellType(cell_type = tcga, surv_data = survival_data,
+                          tertiles = TRUE)
+  plot_file <- file.path("figures", paste0("TCGA_kaplanmeier_tertiles_", tcga,
                                            ".png"))
-  ggplot2::ggsave(plot_file, width = surv_plot_width, height = surv_plot_height)
+  ggplot2::ggsave(plot_file, width = sur_plot_width, height = sur_plot_height)
 }
 
 # Subtype specific Kaplan-Meier Curve
@@ -198,7 +227,7 @@ survminer::ggsurvplot(subtype_km, palette = subtype_colors,
                       main = "TCGA GBM Survival",
                       xlab = "Days to Death")
 plot_file <- file.path("figures", "TCGA_kaplanmeier_subtypes.pdf")
-ggplot2::ggsave(plot_file, width = surv_plot_width, height = surv_plot_height)
+ggplot2::ggsave(plot_file, width = sur_plot_width, height = sur_plot_height)
 
 # Save .png
 survminer::ggsurvplot(subtype_km, palette = subtype_colors,
@@ -207,4 +236,4 @@ survminer::ggsurvplot(subtype_km, palette = subtype_colors,
                       main = "TCGA GBM Survival",
                       xlab = "Days to Death")
 plot_file <- file.path("figures", "TCGA_kaplanmeier_subtypes.png")
-ggplot2::ggsave(plot_file, width = surv_plot_width, height = surv_plot_height)
+ggplot2::ggsave(plot_file, width = sur_plot_width, height = sur_plot_height)

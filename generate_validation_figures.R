@@ -185,3 +185,36 @@ grid.arrange(arrangeGrob(ssgsea_png + theme(legend.position = "none"),
              layout_matrix = layout,
              legend_png, nrow = 1)
 dev.off()
+
+# Compute ANOVA on percent positivity estimates
+t_test_results_list <- list()
+for (marker in unique(ssgsea_subtype$`Cell Type`)) {
+  # Subset to each marker
+  cell_type_sub_df <- ssgsea_subtype %>% dplyr::filter(`Cell Type` == marker)
+  
+  # Compute ANOVA
+  anova_results <- aov(Enrichment ~ GeneExp_Subtype, data = cell_type_sub_df)
+  
+  # Summarize ANOVA
+  anova_summary_file <- file.path("results", paste0("anova_summary_", marker, ".txt"))
+  anova_results_summary <- summary(anova_results)
+  sink(anova_summary_file)
+  print(anova_results_summary)
+  sink()
+  
+  # Perform pairwise t-test
+  t_test_results <- pairwise.t.test(cell_type_sub_df$Enrichment,
+                                    cell_type_sub_df$GeneExp_Subtype,
+                                    p.adjust.method = "fdr")
+  
+  t_test_results_df <- t_test_results$p.value %>%
+    dplyr::as_data_frame() %>%
+    dplyr::mutate(cell_type = marker,
+                  data_type = "TCGA_ssgsea")
+  
+  t_test_results_list[[marker]] <- t_test_results_df
+}
+
+ttest_file <- file.path("results", paste0("t_test_results_all.csv"))
+t_test_full_df <- dplyr::bind_rows(t_test_results_list)
+t_test_full_df %>% readr::write_csv(ttest_file)

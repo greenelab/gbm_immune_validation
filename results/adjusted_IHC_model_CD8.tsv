@@ -1,0 +1,7 @@
+""	"lower .95"	"upper .95"	"hazard"	"Pvalues"	"WaldsP"
+"CD8"	"0"	"269701235383.39"	"4.8"	"9.0e-01"	"1.3e-04"
+"survival_data$age_at_initial_pathologic_diagnosis"	"1.02"	"1.07"	"1.04"	"1.3e-05"	"1.3e-04"
+"survival_data$genderMALE"	"0.91"	"2.19"	"1.41"	"1.2e-01"	"1.3e-04"
+"survival_data$GeneExp_SubtypeMesenchymal"	"0.84"	"2.68"	"1.5"	"1.7e-01"	"1.3e-04"
+"survival_data$GeneExp_SubtypeNeural"	"0.24"	"0.87"	"0.46"	"1.8e-02"	"1.3e-04"
+"survival_data$GeneExp_SubtypeProneural"	"0.42"	"1.42"	"0.77"	"4.0e-01"	"1.3e-04"
